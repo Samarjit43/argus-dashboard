@@ -107,18 +107,18 @@ export default function DashboardComponent() {
         </header>
 
         <section className="bg-neutral-900 p-6 rounded-lg border border-neutral-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Add Website to Agent Watchlist</h2>
+          <h2 className="text-xl font-semibold mb-4">Assign Target</h2>
           <form onSubmit={addWebsite} className="mb-6 flex flex-wrap gap-2">
             <input
               type="text"
-              placeholder="Platform Name (e.g. Unstop)"
+              placeholder="Entity Name"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
               className="bg-neutral-950 border border-neutral-700 px-4 py-2 rounded flex-1 min-w-[200px] text-white focus:outline-none focus:border-blue-500"
             />
             <input
               type="text"
-              placeholder="https://example.com/hackathons"
+              placeholder="Input extraction coordinates"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="bg-neutral-950 border border-neutral-700 px-4 py-2 rounded flex-2 min-w-[300px] text-white focus:outline-none focus:border-blue-500"
@@ -141,7 +141,7 @@ export default function DashboardComponent() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Discovered Competitions ({competitions.length})</h2>
+          <h2 className="text-xl font-semibold mb-4">Intercepted Intel ({competitions.length})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {competitions.map((comp, idx) => (
               <div key={idx} className="bg-neutral-900 p-4 rounded-lg border border-neutral-800 hover:border-neutral-700 transition-colors">
