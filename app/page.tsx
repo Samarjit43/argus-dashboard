@@ -89,72 +89,71 @@ export default function DashboardComponent() {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-50 p-8 font-sans">
-      <div className="max-w-5xl mx-auto">
-        <header className="mb-8 flex justify-between items-center flex-wrap gap-4">
-          <h1 className="text-3xl font-bold text-blue-400">Argus: The web's silent sentinel</h1>
-          <button
-            onClick={subscribeToNotifications}
-            disabled={isSubscribed}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              isSubscribed
-                ? "bg-green-900/40 text-green-400 border border-green-800 cursor-default"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+    <div className="min-h-screen bg-black text-white p-8 max-w-5xl mx-auto">
+      {/* Header */}
+      <header className="flex justify-between items-center mb-10 flex-wrap gap-4">
+        <h1 className="text-3xl font-bold text-blue-500">
+          Argus: The web's silent sentinel
+        </h1>
+        
+        <button 
+          onClick={subscribeToNotifications}
+          className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2 rounded-lg transition-all"
+        >
+          Arm Argus
+        </button>
+      </header>
+
+      {/* Input Card */}
+      <section className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 mb-10 shadow-xl">
+        <h2 className="text-lg font-semibold text-white mb-4">Assign Target</h2>
+        <form onSubmit={addWebsite} className="flex flex-wrap gap-3">
+          <input
+            type="text"
+            placeholder="Entity Name"
+            value={platform}
+            onChange={(e) => setPlatform(e.target.value)}
+            className="bg-neutral-950 border border-neutral-800 text-white placeholder-neutral-500 px-4 py-2.5 rounded-lg flex-1 min-w-[200px] focus:outline-none focus:border-blue-600"
+          />
+          <input
+            type="text"
+            placeholder="Input Extraction Coordinates"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="bg-neutral-950 border border-neutral-800 text-white placeholder-neutral-500 px-4 py-2.5 rounded-lg flex-2 min-w-[300px] focus:outline-none focus:border-blue-600"
+          />
+          <button 
+            type="submit" 
+            className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-6 py-2.5 rounded-lg transition-all"
           >
-            {isSubscribed ? "Argus Active" : " Arm Argus"}
+            Deploy Sentinel
           </button>
-        </header>
+        </form>
+      </section>
 
-        <section className="bg-neutral-900 p-6 rounded-lg border border-neutral-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Assign Target</h2>
-          <form onSubmit={addWebsite} className="mb-6 flex flex-wrap gap-2">
-            <input
-              type="text"
-              placeholder="Entity Name"
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
-              className="bg-neutral-950 border border-neutral-700 px-4 py-2 rounded flex-1 min-w-[200px] text-white focus:outline-none focus:border-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="Input extraction coordinates"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="bg-neutral-950 border border-neutral-700 px-4 py-2 rounded flex-2 min-w-[300px] text-white focus:outline-none focus:border-blue-500"
-            />
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition-colors">
-              Watch URL
-            </button>
-          </form>
-
-          {watchlist.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {watchlist.map((site) => (
-                <span key={site.id} className="bg-green-900/30 text-green-400 border border-green-800/50 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                  {site.name}
-                </span>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Intercepted Intel ({competitions.length})</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {competitions.map((comp, idx) => (
-              <div key={idx} className="bg-neutral-900 p-4 rounded-lg border border-neutral-800 hover:border-neutral-700 transition-colors">
-                <h3 className="font-bold text-lg text-white mb-2">{comp.title}</h3>
-                <p className="text-neutral-400 text-sm mb-4">Prize: {comp.prize_pool || "TBA"}</p>
-                <a href={comp.url} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-                  View Application →
-                </a>
+      {/* Intercepted Intel Section */}
+      <div>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Intercepted Intel ({competitions.length})
+        </h2>
+        
+        {competitions.length === 0 ? (
+          <p className="text-neutral-500 text-sm">No target data intercepted yet.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {competitions.map((item: any, idx: number) => (
+              <div key={idx} className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-5">
+                <h3 className="font-semibold text-white mb-1">{item.title || item.name}</h3>
+                <p className="text-xs text-neutral-400 mb-3">{item.platform}</p>
+                {item.url && (
+                  <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">
+                    Access Intelligence Link →
+                  </a>
+                )}
               </div>
             ))}
           </div>
-        </section>
+        )}
       </div>
-    </main>
+    </div>
   );
-}
