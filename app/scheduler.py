@@ -6,8 +6,8 @@ def patrol_the_web():
     print("Argus is initiating a scheduled scan...")
     run_agent_worker()
 
-# Set Argus to run every 4 hours (adjust as you see fit!)
-schedule.every(4).hours.do(patrol_the_web)
+# Set Argus to run every 30 minutes (adjust as you see fit!)
+schedule.every(30).minutes.do(patrol_the_web)
 
 print(" Argus background scheduler activated. Standing by.")
 
