@@ -161,3 +161,4 @@ export default function DashboardComponent() {
       </div>
     </main>
   );
+} // <--- ADD THIS BRACKET RIGHT HERE!
