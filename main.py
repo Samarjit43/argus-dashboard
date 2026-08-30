@@ -4,7 +4,24 @@ from pydantic import BaseModel
 from app import agent  # Imports your powerful scraping script!
 
 app = FastAPI()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+# ... your other imports ...
 
+app = FastAPI()
+
+# --- ADD THIS CORS BLOCK ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # This allows any frontend to connect. You can restrict it later!
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# ---------------------------
+
+# ... the rest of your routes ...
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
