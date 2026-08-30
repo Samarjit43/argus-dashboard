@@ -156,7 +156,29 @@ def run_agent_worker():
 
         browser.close()
 
-
+def scan_single_target(url):
+    print(f"\n🎯 Direct Target Scan Initiated for: {url}")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        try:
+            page.goto(url, wait_until="networkidle", timeout=60000)
+            page.wait_for_timeout(6000)
+            scraped_text = page.inner_text("body")
+            
+            # Send to Groq LLM
+            extracted = extract_competitions_with_llm(scraped_text, url)
+            
+            if extracted:
+                save_competitions_to_db(extracted, url)
+                return extracted
+            else:
+                return []
+        except Exception as e:
+            print(f"❌ Target Scan Failed: {e}")
+            return [{"error": str(e)}]
+        finally:
+            browser.close()
 if __name__ == "__main__":
     print("🚀 Starting the Autonomous Hackathon Agent...")
     run_agent_worker()

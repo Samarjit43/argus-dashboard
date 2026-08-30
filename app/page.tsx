@@ -1,164 +1,97 @@
- "use client";
+"use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useState } from "react";
 
-// 1. PUT YOUR REAL VAPID KEY HERE
-const VAPID_PUBLIC_KEY = "BCAV_QSJOps3KQ9JGPcpYKDIu4rWuzceAyTYTo6ScEg3P2rx7ozhoeBiA9AVSjOIvUKM0X7aVNChbcTXAadcick"; 
+export default function Home() {
+  const [entityName, setEntityName] = useState("");
+  const [coordinates, setCoordinates] = useState("");
+  const [intel, setIntel] = useState<string[]>([]);
+  const [isDeploying, setIsDeploying] = useState(false);
 
-// 2. PUT YOUR REAL SUPABASE ANON KEY HERE
-const supabase = createClient(
-  "https://pjpjelguamyzzwldiuhl.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqcGplbGd1YW15enp3bGRpdWhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0NTgzNTMsImV4cCI6MjEwMzAzNDM1M30.8iJVwfvbdNLS0wStint5lMBaBvkILgtzsBiAn9GQqKw");
+  const handleDeploy = async () => {
+    // Prevent sending empty requests
+    if (!entityName || !coordinates) return;
+    
+    setIsDeploying(true);
 
-// Helper to convert VAPID key for the browser
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-
-export default function DashboardComponent() {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [competitions, setCompetitions] = useState<any[]>([]);
-  const [platform, setPlatform] = useState("");
-  const [url, setUrl] = useState("");
-  const [watchlist, setWatchlist] = useState<any[]>([]);
-
-  // Wake up Argus Service Worker and fetch data on load
-  useEffect(() => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js")
-        .then(() => console.log("✅ Argus Service Worker is active."))
-        .catch(err => console.error("❌ Service Worker failed:", err));
-    }
-    fetchCompetitions();
-  }, []);
-
-  const fetchCompetitions = async () => {
-    const { data, error } = await supabase.from("competitions").select("*");
-    if (!error && data) {
-      setCompetitions(data);
-    }
-  };
-
-  const addWebsite = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (platform && url) {
-      setWatchlist([...watchlist, { id: Date.now(), name: platform, url }]);
-      setPlatform("");
-      setUrl("");
-    }
-  };
-
-  const subscribeToNotifications = async () => {
-    console.log("Argus Button Clicked!");
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const permission = await Notification.requestPermission();
+      const response = await fetch("http://localhost:8000/api/deploy", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          entity_name: entityName,
+          coordinates: coordinates,
+        }),
+      });
 
-      if (permission === "granted") {
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-        });
-
-        const subData = subscription.toJSON();
-        const { error: insertError } = await supabase
-          .from("push_subscriptions")
-          .insert([{ subscription: subData }]);
-
-        if (insertError) {
-          console.error("❌ SUPABASE INSERT ERROR:", insertError);
-          alert("Failed to save to database. Check F12 Console!");
-        } else {
-          setIsSubscribed(true);
-          alert("🎉 Argus is now armed! Push notifications active.");
-        }
-      } else {
-        alert("Permission denied for push notifications.");
+      const data = await response.json();
+      
+      if (data.status === "success") {
+        // Add the new intel to our list
+        setIntel((prev) => [...prev, data.data.intel]);
       }
     } catch (error) {
-      console.error("Error subscribing to notifications:", error);
+      console.error("Mission failed:", error);
+      setIntel((prev) => [...prev, "Error: Connection to Sentinel lost."]);
+    } finally {
+      setIsDeploying(false);
     }
   };
 
- return (
-    <main className="min-h-screen bg-black text-white p-6 md:p-12 flex flex-col items-center">
-      <div className="w-full max-w-4xl">
-        
-        {/* Header */}
-        <header className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-blue-500">
-            Argus: The web's silent sentinel
-          </h1>
-          
-          <button 
-            onClick={subscribeToNotifications}
-            className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all"
+  return (
+    <main className="max-w-4xl mx-auto p-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-blue-500">Argus: The web's silent sentinel</h1>
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+          Arm Argus
+        </button>
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-white">Assign Target</h2>
+        <div className="flex gap-4 mb-4">
+          <input
+            type="text"
+            placeholder="Entity Name"
+            className="flex-1 bg-black border border-zinc-700 rounded-md px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+            value={entityName}
+            onChange={(e) => setEntityName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Input Extraction Coordinates"
+            className="flex-1 bg-black border border-zinc-700 rounded-md px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+            value={coordinates}
+            onChange={(e) => setCoordinates(e.target.value)}
+          />
+          <button
+            onClick={handleDeploy}
+            disabled={isDeploying}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-6 py-2 rounded-md font-medium transition-colors"
           >
-            Arm Argus
+            {isDeploying ? "Deploying..." : "Deploy Sentinel"}
           </button>
-        </header>
+        </div>
+      </div>
 
-        {/* Input Card */}
-        <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 mb-8 shadow-2xl">
-          <h2 className="text-base font-semibold text-white mb-4">Assign Target</h2>
-          <form onSubmit={addWebsite} className="flex flex-col md:flex-row gap-3">
-            <input
-              type="text"
-              placeholder="Entity Name"
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
-              className="bg-neutral-950 border border-neutral-800 text-white placeholder-neutral-500 px-4 py-2.5 rounded-lg flex-1 focus:outline-none focus:border-blue-600 text-sm"
-            />
-            <input
-              type="text"
-              placeholder="Input Extraction Coordinates"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="bg-neutral-950 border border-neutral-800 text-white placeholder-neutral-500 px-4 py-2.5 rounded-lg flex-[2] focus:outline-none focus:border-blue-600 text-sm"
-            />
-            <button 
-              type="submit" 
-              className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-lg transition-all text-sm whitespace-nowrap"
-            >
-              Deploy Sentinel
-            </button>
-          </form>
-        </section>
-
-        {/* Intercepted Intel Section */}
-        <section>
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Intercepted Intel ({competitions.length})
-          </h2>
-          
-          {competitions.length === 0 ? (
-            <p className="text-neutral-500 text-sm">No target data intercepted yet.</p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {competitions.map((item: any, idx: number) => (
-                <div key={idx} className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-5">
-                  <h3 className="font-semibold text-white mb-1 text-sm">{item.title || item.name}</h3>
-                  <p className="text-xs text-neutral-400 mb-3">{item.platform}</p>
-                  {item.url && (
-                    <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">
-                      Access Intelligence Link →
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
+      <div>
+        <h2 className="text-xl font-semibold mb-4 text-white">
+          Intercepted Intel ({intel.length})
+        </h2>
+        {intel.length === 0 ? (
+          <p className="text-zinc-400">No target data intercepted yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {intel.map((item, index) => (
+              <li key={index} className="bg-zinc-900 border border-zinc-800 p-4 rounded-md text-zinc-300">
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );
-} // <--- ADD THIS BRACKET RIGHT HERE!
+}
