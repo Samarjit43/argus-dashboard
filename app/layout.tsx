@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Argus",
-  description: "Autonomous competition tracking dashboard",
+export const metadata = {
+  title: "Argus: The web's silent sentinel",
+  description: "Autonomous web-scraping sentinel agent",
 };
 
 export default function RootLayout({
@@ -12,8 +11,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+    <html lang="en">
+      <body className="bg-black text-white antialiased">
         {children}
       </body>
     </html>
