@@ -5,13 +5,12 @@ import { useState } from "react";
 export default function Home() {
   const [entityName, setEntityName] = useState("");
   const [coordinates, setCoordinates] = useState("");
-  const [intel, setIntel] = useState<string[]>([]);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [intelList, setIntelList] = useState<string[]>([]);
 
   const handleDeploy = async () => {
-    // Prevent sending empty requests
     if (!entityName || !coordinates) return;
-    
+
     setIsDeploying(true);
 
     try {
@@ -27,14 +26,15 @@ export default function Home() {
       });
 
       const data = await response.json();
-      
+
       if (data.status === "success") {
-        // Add the new intel to our list
-        setIntel((prev) => [...prev, data.data.intel]);
+        setIntelList((prev) => [data.data.intel, ...prev]);
+      } else {
+        setIntelList((prev) => [`Error: ${data.detail || "Connection to Sentinel lost."}`, ...prev]);
       }
     } catch (error) {
-      console.error("Mission failed:", error);
-      setIntel((prev) => [...prev, "Error: Connection to Sentinel lost."]);
+      console.error("Deploy error:", error);
+      setIntelList((prev) => ["Error: Connection to Sentinel lost.", ...prev]);
     } finally {
       setIsDeploying(false);
     }
@@ -43,33 +43,35 @@ export default function Home() {
   return (
     <main className="max-w-4xl mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-blue-500">Argus: The web's silent sentinel</h1>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+        <h1 className="text-3xl font-bold text-blue-500">
+          Argus: The web&apos;s silent sentinel
+        </h1>
+        <button className="bg-blue-600 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-700 transition">
           Arm Argus
         </button>
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-white">Assign Target</h2>
-        <div className="flex gap-4 mb-4">
+        <h2 className="text-lg font-semibold mb-4">Assign Target</h2>
+        <div className="flex gap-4">
           <input
             type="text"
-            placeholder="Entity Name"
-            className="flex-1 bg-black border border-zinc-700 rounded-md px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+            placeholder="Entity Name (e.g. VSSUT)"
             value={entityName}
             onChange={(e) => setEntityName(e.target.value)}
+            className="bg-black border border-zinc-800 rounded-lg px-4 py-2 text-white flex-1 focus:outline-none focus:border-blue-500"
           />
           <input
             type="text"
-            placeholder="Input Extraction Coordinates"
-            className="flex-1 bg-black border border-zinc-700 rounded-md px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+            placeholder="Target URL (e.g. https://www.vssut.ac.in/)"
             value={coordinates}
             onChange={(e) => setCoordinates(e.target.value)}
+            className="bg-black border border-zinc-800 rounded-lg px-4 py-2 text-white flex-1 focus:outline-none focus:border-blue-500"
           />
           <button
             onClick={handleDeploy}
             disabled={isDeploying}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-6 py-2 rounded-md font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition disabled:opacity-50"
           >
             {isDeploying ? "Deploying..." : "Deploy Sentinel"}
           </button>
@@ -77,20 +79,23 @@ export default function Home() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-white">
-          Intercepted Intel ({intel.length})
+        <h2 className="text-lg font-semibold mb-4">
+          Intercepted Intel ({intelList.length})
         </h2>
-        {intel.length === 0 ? (
-          <p className="text-zinc-400">No target data intercepted yet.</p>
-        ) : (
-          <ul className="space-y-3">
-            {intel.map((item, index) => (
-              <li key={index} className="bg-zinc-900 border border-zinc-800 p-4 rounded-md text-zinc-300">
-                {item}
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="space-y-4">
+          {intelList.length === 0 ? (
+            <p className="text-zinc-500 text-sm">No intel intercepted yet.</p>
+          ) : (
+            intelList.map((intel, index) => (
+              <div
+                key={index}
+                className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-zinc-300 font-mono text-sm"
+              >
+                {intel}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </main>
   );
