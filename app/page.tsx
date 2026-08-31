@@ -15,8 +15,7 @@ export default function Home() {
     setIsDeploying(true);
 
     try {
-      const response = await fetch("https://argus-dashboard-86zk.onrender.com/api/deploy", ...)",
-       {
+      const response = await fetch("https://argus-dashboard-86zk.onrender.com/api/deploy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
