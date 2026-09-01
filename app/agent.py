@@ -145,11 +145,11 @@ def run_agent_worker():
         )
 
     for site in websites:
-    url = site.get("url")
-    print(f"\n🔍 Scanning: {url}")
-    try:
-    page.goto(url, wait_until="networkidle", timeout=60000)
-    page.wait_for_timeout(6000)
+        url = site.get("url")
+        print(f"\n🔍 Scanning: {url}")
+        try:
+        page.goto(url, wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(6000)
 
     scraped_text = page.inner_text("body")
     print(f"📄 Successfully scraped {len(scraped_text)} characters of text.")
