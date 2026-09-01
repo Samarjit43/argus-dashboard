@@ -132,37 +132,37 @@ def run_agent_worker():
         print("⚠️ No watched websites found in database.")
         return
 
- with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            args=[
-                "--disable-dev-shm-usage",
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-gpu",
-                "--single-process"
-            ]
-        )   
+    with sync_playwright() as p:
+         = p.chromium.launch(
+    headless=True,
+    args=[
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-gpu",
+    "--single-process"
+    ]
+    )   
 
-        for site in websites:
-            url = site.get("url")
-            print(f"\n🔍 Scanning: {url}")
-            try:
-                page.goto(url, wait_until="networkidle", timeout=60000)
-                page.wait_for_timeout(6000)
-                
-                scraped_text = page.inner_text("body")
-                print(f"📄 Successfully scraped {len(scraped_text)} characters of text.")
-                
-                extracted = extract_competitions_with_llm(scraped_text, url)
-                if extracted:
-                    save_competitions_to_db(extracted, url)
-                else:
-                    print("⚠️ No competitions were extracted from this page.")
-            except Exception as e:
-                print(f"❌ Failed scanning {url}: {e}")
+    for site in websites:
+    url = site.get("url")
+    print(f"\n🔍 Scanning: {url}")
+    try:
+    page.goto(url, wait_until="networkidle", timeout=60000)
+    page.wait_for_timeout(6000)
 
-        browser.close()
+    scraped_text = page.inner_text("body")
+    print(f"📄 Successfully scraped {len(scraped_text)} characters of text.")
+
+    extracted = extract_competitions_with_llm(scraped_text, url)
+    if extracted:
+    save_competitions_to_db(extracted, url)
+    else:
+    print("⚠️ No competitions were extracted from this page.")
+    except Exception as e:
+    print(f"❌ Failed scanning {url}: {e}")
+
+browser.close()
 
 def scan_single_target(url):
     print(f"\n🎯 Direct Target Scan Initiated for: {url}")
