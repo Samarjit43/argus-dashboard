@@ -132,8 +132,8 @@ def run_agent_worker():
         print("⚠️ No watched websites found in database.")
         return
 
-    with sync_playwright() as p:
-browser = p.chromium.launch(
+ with sync_playwright() as p:
+        browser = p.chromium.launch(
             headless=True,
             args=[
                 "--disable-dev-shm-usage",
@@ -142,7 +142,7 @@ browser = p.chromium.launch(
                 "--disable-gpu",
                 "--single-process"
             ]
-        )        page = browser.new_page()
+        )   
 
         for site in websites:
             url = site.get("url")
