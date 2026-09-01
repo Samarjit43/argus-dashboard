@@ -56,14 +56,14 @@ export default function Home() {
         <div className="flex gap-4">
           <input
             type="text"
-            placeholder="Entity Name (e.g. VSSUT)"
+            placeholder="Entity Name"
             value={entityName}
             onChange={(e) => setEntityName(e.target.value)}
             className="bg-black border border-zinc-800 rounded-lg px-4 py-2 text-white flex-1 focus:outline-none focus:border-blue-500"
           />
           <input
             type="text"
-            placeholder="Target URL (e.g. https://www.vssut.ac.in/)"
+            placeholder="Target URL"
             value={coordinates}
             onChange={(e) => setCoordinates(e.target.value)}
             className="bg-black border border-zinc-800 rounded-lg px-4 py-2 text-white flex-1 focus:outline-none focus:border-blue-500"
