@@ -133,16 +133,16 @@ def run_agent_worker():
         return
 
     with sync_playwright() as p:
-         = p.chromium.launch(
-    headless=True,
-    args=[
-    "--disable-dev-shm-usage",
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-gpu",
-    "--single-process"
-    ]
-    )   
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-dev-shm-usage",
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-gpu",
+                "--single-process"
+            ]
+        )
 
     for site in websites:
     url = site.get("url")
@@ -166,7 +166,7 @@ browser.close()
 
 def scan_single_target(url):
     print(f"\n🎯 Direct Target Scan Initiated for: {url}")
-    with sync_playwright() as p:
+   with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
             args=[
